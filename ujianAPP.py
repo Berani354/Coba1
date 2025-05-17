@@ -1,13 +1,16 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
 import mysql.connector
-import bcrypt
 import datetime
 import sqlite3
 import pandas as pd
 import io
 import altair as alt
 import xlsxwriter
+import hashlib
+import os
+import base64
+
 
 
 
@@ -26,10 +29,18 @@ def get_connection():
 # Fungsi Utilitas
 # =======================
 def hash_password(password):
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+    salt = os.urandom(16)
+    key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
+    return base64.b64encode(salt + key).decode('utf-8')
+
 
 def verify_password(password, hashed):
-    return bcrypt.checkpw(password.encode(), hashed.encode())
+    hashed_bytes = base64.b64decode(hashed.encode('utf-8'))
+    salt = hashed_bytes[:16]
+    key = hashed_bytes[16:]
+    new_key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
+    return new_key == key
+
 
 def user_exists(username):
     conn = get_connection()
@@ -47,7 +58,7 @@ def register_user(username, password):
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", 
-                   (username, hashed.decode()))
+                   (username, hashed))
     conn.commit()
     cursor.close()
     conn.close()
@@ -670,3 +681,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
