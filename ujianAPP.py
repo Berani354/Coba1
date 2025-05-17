@@ -12,15 +12,16 @@ import os
 import base64
 
 
-
-
 def get_connection():
     return mysql.connector.connect(
         host=st.secrets["sql12.freesqldatabase.com"],
         user=st.secrets["sql12779433"],
         password=st.secrets["cIavINHjxP"],
-        database=st.secrets["sql12779433"]
+        database=st.secrets["sql12779433"],
+        port=int(st.secrets["3306T"])
     )
+
+
 
 # =======================
 # Fungsi Utilitas
