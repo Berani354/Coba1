@@ -17,8 +17,13 @@ import base64
 # =======================
 # Koneksi Database
 # =======================
-
-
+def get_connection():
+    return mysql.connector.connect(
+        host=st.secrets["localhost"],
+        user=st.secrets["root"],
+        password=st.secrets[""],
+        database=st.secrets["ujian_app"]
+    )
 # =======================
 # Fungsi Utilitas
 # =======================
