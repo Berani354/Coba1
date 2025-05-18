@@ -424,13 +424,17 @@ def upload_soal_ujian():
                 st.dataframe(df)
 
                 if st.button("✅ Simpan ke Database"):
-                    conn = mysql.connector.connect(
-                        host='localhost',
-                        user='root',
-                        password='',
-                        database='ujian_app'
-                    )
-                    c = conn.cursor()
+                    try:
+                        conn = get_connection()
+                        c = conn.cursor()
+                        # query simpan data
+                        c.execute("...")  # sesuaikan query
+                        conn.commit()
+                        c.close()
+                        conn.close()
+                        st.success("Data berhasil disimpan!")
+                    except Exception as e:
+                        st.error(f"Gagal menyimpan data: {e}")
 
                     inserted_count = 0
                     for _, row in df.iterrows():
