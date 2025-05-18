@@ -246,7 +246,8 @@ def halaman_ujian():
                 f"Jawaban Anda untuk Soal {i+1}",
                 options=["A", "B", "C", "D"],
                 format_func=lambda x: f"{x}. {pilihan[x]}",
-                key=f"soal_{i}"
+                key=f"soal_{i}",
+                index=None  # ⬅️ Supaya default kosong
             )
             st.session_state["jawaban_user"][i] = opsi
 
