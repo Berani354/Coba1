@@ -427,36 +427,31 @@ def upload_soal_ujian():
                     try:
                         conn = get_connection()
                         c = conn.cursor()
-                        # query simpan data
-                        c.execute("...")  # sesuaikan query
+
+                        inserted_count = 0
+                        for _, row in df.iterrows():
+                            c.execute("""
+                                INSERT INTO soal_ujian (matkul, pertanyaan, opsi_1, opsi_2, opsi_3, opsi_4, jawaban)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                            """, (
+                                row['matkul'],
+                                row['pertanyaan'],
+                                row['opsi_1'],
+                                row['opsi_2'],
+                                row['opsi_3'],
+                                row['opsi_4'],
+                                row['jawaban']
+                            ))
+                            inserted_count += 1
+
                         conn.commit()
                         c.close()
                         conn.close()
-                        st.success("Data berhasil disimpan!")
+
+                        st.success(f"✅ {inserted_count} soal berhasil disimpan ke database.")
+
                     except Exception as e:
                         st.error(f"Gagal menyimpan data: {e}")
-
-                    inserted_count = 0
-                    for _, row in df.iterrows():
-                        c.execute("""
-                            INSERT INTO soal_ujian (matkul, pertanyaan, opsi_1, opsi_2, opsi_3, opsi_4, jawaban)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s)
-                        """, (
-                            row['matkul'],
-                            row['pertanyaan'],
-                            row['opsi_1'],
-                            row['opsi_2'],
-                            row['opsi_3'],
-                            row['opsi_4'],
-                            row['jawaban']
-                        ))
-                        inserted_count += 1
-
-                    conn.commit()
-                    c.close()
-                    conn.close()
-
-                    st.success(f"✅ {inserted_count} soal berhasil disimpan ke database.")
 
             except Exception as e:
                 st.error(f"❌ Gagal membaca atau menyimpan file: {e}")
