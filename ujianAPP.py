@@ -489,6 +489,7 @@ def upload_soal_ujian():
 
 def kelola_hasil_ujian():
     st.markdown("## 🛠️ Kelola Data Hasil Ujian")
+    
     try:
         conn = get_connection()
         c = conn.cursor()
@@ -496,14 +497,17 @@ def kelola_hasil_ujian():
         data = c.fetchall()
         c.close()
         conn.close()
-        
-    df = pd.DataFrame(data, columns=["ID", "Nama", "NIM", "Mata Kuliah", "Skor", "Waktu"])
 
-    if df.empty:
-        st.info("📭 Belum ada data hasil ujian.")
-        return
+        df = pd.DataFrame(data, columns=["ID", "Nama", "NIM", "Mata Kuliah", "Skor", "Waktu"])
 
-    selected_row = st.selectbox("📋 Pilih Data Ujian untuk Diedit atau Dihapus", df["ID"].astype(str) + " - " + df["Nama"])
+        if df.empty:
+            st.info("📭 Belum ada data hasil ujian.")
+            return
+
+        selected_row = st.selectbox("📋 Pilih Data Ujian untuk Diedit atau Dihapus", df["ID"].astype(str) + " - " + df["Nama"])
+
+    except Exception as e:
+        st.error(f"Gagal mengambil data hasil ujian: {e}")
 
     if selected_row:
         row_id = int(selected_row.split(" - ")[0])
