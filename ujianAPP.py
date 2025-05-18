@@ -290,8 +290,11 @@ def halaman_ujian():
                 else:
                     st.error("❌ Gagal menyimpan hasil ujian.")
 
-                if skor == 100:
+                # if skor == 100:
+                    # st.balloons()
+                if skor >= 70:
                     st.balloons()
+
                                     
                 
 def admin_dashboard():
