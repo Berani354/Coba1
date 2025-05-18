@@ -11,6 +11,7 @@ import hashlib
 import os
 import base64
 
+
 def get_connection():
     return mysql.connector.connect(
         host=st.secrets["DB_HOST"],
@@ -284,15 +285,7 @@ def halaman_ujian():
 
                 if skor == 100:
                     st.balloons()
-                        
-def sudah_mengerjakan_ujian(nim, matkul):
-    conn = get_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT 1 FROM hasil_ujian WHERE nim = %s AND matkul = %s", (nim, matkul))
-    result = cursor.fetchone()
-    conn.close()
-    return result is not None
-                        
+                                    
                 
 def admin_dashboard():
     with st.sidebar:
@@ -325,10 +318,11 @@ def admin_dashboard():
 
 def ambil_data_ujian():
     conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='',
-        database='ujian_app'
+        host="sql12.freesqldatabase.com",
+        user="sql12779433",
+        password="cIavINHjxP",
+        database="sql12779433",
+        port=3306
     )
     c = conn.cursor()
     c.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
@@ -619,7 +613,7 @@ def main():
 
 
     elif st.session_state.get("login", False):
-        soal_ujian_page()
+        soal_ujian_page_user()
         
     
     
@@ -638,9 +632,9 @@ def main():
 
         with col2:  # Menampilkan konten di kolom kanan
             if selected == "login":
-                login()
+                login_user()
             elif selected == "register":
-                register()
+                register_user()
     
 
 
