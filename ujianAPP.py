@@ -110,22 +110,21 @@ def form_identitas():
     nama = st.text_input("Nama Lengkap")
     nim = st.text_input("NIM")
     kelas = st.text_input("Kelas")
-    matkul = st.selectbox("Mata Kuliah", ["Matematika", "Pemrograman", "Jaringan", "AI"])
 
     if st.button("Simpan Identitas"):
-        if not nama or not nim or not kelas or not matkul:
+        if not nama or not nim or not kelas:
             st.warning("Mohon lengkapi semua data.")
             return
 
         st.session_state["data_identitas"] = {
             "nama": nama,
             "nim": nim,
-            "kelas": kelas,
-            "matkul": matkul
+            "kelas": kelas
         }
         st.session_state["form_filled"] = True
         st.success("✅ Identitas berhasil disimpan.")
         st.rerun()
+
 
 def halaman_hasil_ujian():
     st.title("🏆 Peringkat 10 Teratas")
@@ -182,6 +181,13 @@ def halaman_ujian():
     if "form_filled" not in st.session_state or not st.session_state["form_filled"]:
         form_identitas()
         return
+    matkul = st.selectbox("Pilih Mata Kuliah untuk Ujian", ["Matematika", "Pemrograman", "Jaringan", "AI"])
+    st.session_state["data_identitas"]["matkul"] = matkul
+
+    st.markdown(f"**Nama:** {st.session_state['data_identitas']['nama']}")
+    st.markdown(f"**NIM:** {st.session_state['data_identitas']['nim']}")
+    st.markdown(f"**Kelas:** {st.session_state['data_identitas']['kelas']}")
+    st.markdown(f"**Mata Kuliah:** {st.session_state['data_identitas']['matkul']}")
 
     data = st.session_state["data_identitas"]
     st.success(f"Selamat datang, {data['nama']} ({data['nim']})")
