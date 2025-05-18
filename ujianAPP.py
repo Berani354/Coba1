@@ -494,7 +494,7 @@ def upload_soal_ujian():
 
 def kelola_hasil_ujian():
     st.markdown("## 🛠️ Kelola Data Hasil Ujian")
-    
+
     try:
         conn = get_connection()
         c = conn.cursor()
@@ -513,6 +513,7 @@ def kelola_hasil_ujian():
 
     except Exception as e:
         st.error(f"Gagal mengambil data hasil ujian: {e}")
+        return  # hentikan eksekusi kalau error
 
     if selected_row:
         row_id = int(selected_row.split(" - ")[0])
@@ -522,19 +523,30 @@ def kelola_hasil_ujian():
         new_skor = st.number_input("Skor Baru", min_value=0.0, max_value=100.0, value=float(record["Skor"]))
 
         if st.button("💾 Simpan Perubahan"):
-            c.execute("UPDATE hasil_ujian SET skor = %s WHERE id = %s", (new_skor, row_id))
-            conn.commit()
-            st.success("✅ Skor berhasil diperbarui.")
-            st.rerun()
+            try:
+                conn = get_connection()
+                c = conn.cursor()
+                c.execute("UPDATE hasil_ujian SET skor = %s WHERE id = %s", (new_skor, row_id))
+                conn.commit()
+                c.close()
+                conn.close()
+                st.success("✅ Skor berhasil diperbarui.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Gagal memperbarui skor: {e}")
 
         if st.button("🗑️ Hapus Data Ini"):
-            c.execute("DELETE FROM hasil_ujian WHERE id = %s", (row_id,))
-            conn.commit()
-            st.warning("🗑️ Data berhasil dihapus.")
-            st.rerun()
-
-    c.close()
-    conn.close()
+            try:
+                conn = get_connection()
+                c = conn.cursor()
+                c.execute("DELETE FROM hasil_ujian WHERE id = %s", (row_id,))
+                conn.commit()
+                c.close()
+                conn.close()
+                st.warning("🗑️ Data berhasil dihapus.")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Gagal menghapus data: {e}")
 
 
 def home_page():
