@@ -315,15 +315,15 @@ def admin_dashboard():
             kelola_hasil_ujian()
 
 
-
 def ambil_data_ujian():
-    conn = mysql.connector.connect(
-        host="sql12.freesqldatabase.com",
-        user="sql12779433",
-        password="cIavINHjxP",
-        database="sql12779433",
-        port=3306
-    )
+    conn = get_connection()  # Pakai fungsi koneksi yang sudah aman
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM hasil_ujian")
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return data
+
     c = conn.cursor()
     c.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
     data = c.fetchall()
