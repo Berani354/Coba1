@@ -13,11 +13,11 @@ import base64
 
 def get_connection():
     return mysql.connector.connect(
-        host="DB_HOST",
-        user="DB_USER",
-        password="DB_PASSWORD",
-        database="DB_NAME",
-        port="DB_PORT"
+        host=st.secrets["DB_HOST"],
+        user=st.secrets["DB_USER"],
+        password=st.secrets["DB_PASSWORD"],
+        database=st.secrets["DB_NAME"],
+        port=int(st.secrets["DB_PORT"])
     )
 
 
