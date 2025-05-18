@@ -175,21 +175,24 @@ def sudah_mengerjakan_ujian(nim, matkul):
     conn.close()
     return count > 0
 
+import random  # Tambahkan ini di bagian atas file
+
 def halaman_ujian():
     st.title("📘 Halaman Ujian Mahasiswa")
 
     if "form_filled" not in st.session_state or not st.session_state["form_filled"]:
         form_identitas()
         return
+    
     matkul = st.selectbox("Pilih Mata Kuliah untuk Ujian", ["Matematika", "Pemrograman", "Jaringan", "AI"])
     st.session_state["data_identitas"]["matkul"] = matkul
 
-    st.markdown(f"**Nama:** {st.session_state['data_identitas']['nama']}")
-    st.markdown(f"**NIM:** {st.session_state['data_identitas']['nim']}")
-    st.markdown(f"**Kelas:** {st.session_state['data_identitas']['kelas']}")
-    st.markdown(f"**Mata Kuliah:** {st.session_state['data_identitas']['matkul']}")
-
     data = st.session_state["data_identitas"]
+    st.markdown(f"**Nama:** {data['nama']}")
+    st.markdown(f"**NIM:** {data['nim']}")
+    st.markdown(f"**Kelas:** {data['kelas']}")
+    st.markdown(f"**Mata Kuliah:** {data['matkul']}")
+
     st.success(f"Selamat datang, {data['nama']} ({data['nim']})")
     st.write(f"📚 Mata Kuliah: {data['matkul']} | Kelas: {data['kelas']}")
 
@@ -199,6 +202,8 @@ def halaman_ujian():
         st.session_state["start_time"] = None
     if "jawaban_user" not in st.session_state:
         st.session_state["jawaban_user"] = []
+    if "soal_acak" not in st.session_state:
+        st.session_state["soal_acak"] = None  # simpan soal teracak agar tidak berubah saat reload
 
     total_menit = 5
     total_detik = total_menit * 60
@@ -224,15 +229,21 @@ def halaman_ujian():
 
         st.warning(f"⏳ Sisa waktu: {str(datetime.timedelta(seconds=int(sisa_waktu)))}")
 
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id, pertanyaan, opsi_1, opsi_2, opsi_3, opsi_4, jawaban FROM soal_ujian WHERE matkul = %s", (data["matkul"],))
-        soal_data = cursor.fetchall()
-        conn.close()
+        if st.session_state["soal_acak"] is None:
+            conn = get_connection()
+            cursor = conn.cursor()
+            cursor.execute("SELECT id, pertanyaan, opsi_1, opsi_2, opsi_3, opsi_4, jawaban FROM soal_ujian WHERE matkul = %s", (data["matkul"],))
+            soal_data = cursor.fetchall()
+            conn.close()
 
-        if not soal_data:
-            st.error("⚠️ Belum ada soal untuk mata kuliah ini. Silakan hubungi admin.")
-            return
+            if not soal_data:
+                st.error("⚠️ Belum ada soal untuk mata kuliah ini. Silakan hubungi admin.")
+                return
+
+            random.shuffle(soal_data)
+            st.session_state["soal_acak"] = soal_data
+        else:
+            soal_data = st.session_state["soal_acak"]
 
         st.markdown("### 🧪 Soal Pilihan Ganda")
 
@@ -242,16 +253,16 @@ def halaman_ujian():
         for i, soal in enumerate(soal_data):
             st.markdown(f"**{i+1}. {soal[1]}**")
             pilihan = {"A": soal[2], "B": soal[3], "C": soal[4], "D": soal[5]}
+            
             opsi = st.radio(
                 f"Jawaban Anda untuk Soal {i+1}",
                 options=["A", "B", "C", "D"],
                 format_func=lambda x: f"{x}. {pilihan[x]}",
                 key=f"soal_{i}",
-                index=None  # ⬅️ Supaya default kosong
+                index=None
             )
             st.session_state["jawaban_user"][i] = opsi
 
-        # Cek apakah ujian sudah pernah disubmit
         if sudah_mengerjakan_ujian(data["nim"], data["matkul"]):
             st.warning("⚠️ Anda sudah mengirim jawaban untuk ujian ini. Anda tidak bisa mengirimkan jawaban lagi.")
         else:
@@ -263,8 +274,8 @@ def halaman_ujian():
                 skor_total = 0
 
                 for i in range(total):
-                    soal_text = soal_data[i][2]
-                    pilihan = soal_data[i][3:7]
+                    soal_text = soal_data[i][1]
+                    pilihan = soal_data[i][2:6]
                     correct = soal_data[i][6]
                     user_ans = st.session_state["jawaban_user"][i]
 
@@ -289,7 +300,7 @@ def halaman_ujian():
                     st.info("📥 Hasil ujian berhasil disimpan ke database.")
                 else:
                     st.error("❌ Gagal menyimpan hasil ujian.")
-
+                    
                 # if skor == 100:
                     # st.balloons()
                 if skor >= 70:
