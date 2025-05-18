@@ -489,17 +489,14 @@ def upload_soal_ujian():
 
 def kelola_hasil_ujian():
     st.markdown("## 🛠️ Kelola Data Hasil Ujian")
-
-    conn = mysql.connector.connect(
-        host='localhost',
-        user='root',
-        password='',
-        database='ujian_app'
-    )
-    c = conn.cursor()
-    c.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
-    data = c.fetchall()
-
+    try:
+        conn = get_connection()
+        c = conn.cursor()
+        c.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
+        data = c.fetchall()
+        c.close()
+        conn.close()
+        
     df = pd.DataFrame(data, columns=["ID", "Nama", "NIM", "Mata Kuliah", "Skor", "Waktu"])
 
     if df.empty:
