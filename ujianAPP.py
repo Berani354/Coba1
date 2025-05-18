@@ -315,22 +315,20 @@ def admin_dashboard():
             kelola_hasil_ujian()
 
 
+
+
 def ambil_data_ujian():
-    conn = get_connection()  # Pakai fungsi koneksi yang sudah aman
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM hasil_ujian")
+    conn = get_connection()  # Koneksi aman
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
     data = cursor.fetchall()
     cursor.close()
     conn.close()
-    return data
-
-    c = conn.cursor()
-    c.execute("SELECT id, nama, nim, matkul, skor, waktu FROM hasil_ujian ORDER BY waktu DESC")
-    data = c.fetchall()
-    c.close()
-    conn.close()
+    
+    # Ubah ke DataFrame
     df = pd.DataFrame(data, columns=["ID", "Nama", "NIM", "Mata Kuliah", "Skor", "Waktu"])
     return df
+
 
 def tampilkan_data_hasil_ujian():
     st.title("📊 Statistik & Data Hasil Ujian")
