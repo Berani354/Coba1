@@ -10,7 +10,7 @@ import xlsxwriter
 import hashlib
 import os
 import base64
-
+import random  
 
 def get_connection():
     return mysql.connector.connect(
@@ -31,14 +31,12 @@ def hash_password(password):
     key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
     return base64.b64encode(salt + key).decode('utf-8')
 
-
 def verify_password(password, hashed):
     hashed_bytes = base64.b64decode(hashed.encode('utf-8'))
     salt = hashed_bytes[:16]
     key = hashed_bytes[16:]
     new_key = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000)
     return new_key == key
-
 
 def user_exists(username):
     conn = get_connection()
@@ -73,9 +71,6 @@ def login_user(username, password):
         return True
     return False
 
-
-
-
 def simpan_hasil_ujian(nama, nim, matkul, skor):
     try:
         # Cek apakah skor valid
@@ -103,7 +98,6 @@ def simpan_hasil_ujian(nama, nim, matkul, skor):
         st.error(f"Terjadi error saat menyimpan hasil ujian: {e}")
         return False
 
-
 def form_identitas():
     st.subheader("🧾 Form Identitas Mahasiswa")
 
@@ -125,7 +119,6 @@ def form_identitas():
         st.success("✅ Identitas berhasil disimpan.")
         st.rerun()
 
-
 def halaman_hasil_ujian():
     st.title("🏆 Peringkat 10 Teratas")
 
@@ -141,8 +134,7 @@ def halaman_hasil_ujian():
 
     df = pd.DataFrame(data, columns=["Nama", "NIM", "Mata Kuliah", "Skor", "Waktu"])
     st.dataframe(df)
-
-
+    
 # =======================
 # Halaman Soal Ujian
 # =======================
@@ -175,15 +167,12 @@ def sudah_mengerjakan_ujian(nim, matkul):
     conn.close()
     return count > 0
 
-import random  # Tambahkan ini di bagian atas file
-
 def halaman_ujian():
     st.title("📘 Halaman Ujian Mahasiswa")
 
     if "form_filled" not in st.session_state or not st.session_state["form_filled"]:
         form_identitas()
         return
-    
     matkul = st.selectbox("Pilih Mata Kuliah untuk Ujian", ["Matematika", "Pemrograman", "Jaringan", "AI"])
     st.session_state["data_identitas"]["matkul"] = matkul
 
@@ -306,8 +295,6 @@ def halaman_ujian():
                 if skor >= 70:
                     st.balloons()
 
-                                    
-                
 def admin_dashboard():
     with st.sidebar:
         selected = option_menu("📂 Navigasi Admin", [
@@ -334,9 +321,6 @@ def admin_dashboard():
         elif selected == "Upload Soal Ujian":
             upload_soal_ujian()
             kelola_hasil_ujian()
-
-
-
 
 def ambil_data_ujian():
     conn = get_connection()  # Koneksi aman
@@ -640,17 +624,9 @@ def main():
 
         # User mengerjakan ujian berdasarkan mata kuliah
         soal_ujian_page_user()
-
-
-
+        
     elif st.session_state.get("login", False):
         soal_ujian_page_user()
-        
-    
-    
-        
-        
-    
     elif st.session_state["show_login"]:
         # menu = st.sidebar.selectbox("Menu", ["Login", "Register"])
         with st.sidebar:
@@ -695,12 +671,8 @@ def main():
                     st.success(message)
                 else:
                     st.error(message)
-
-
     else:
         home_page()
-
-
 if __name__ == '__main__':
     main()
 
